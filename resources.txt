@@ -1,3 +1,10 @@
 "fractal dimension of discrete curve":
 
 http://books.google.ca/books?hl=en&lr=&id=0F_lcjp1KqAC&oi=fnd&pg=PR5&dq=fractal+dimension+of+discrete+curve&ots=j7LRdzbIp_&sig=Dn-wBkgay58eTgq7w7zcSMsFRR8&redir_esc=y#v=onepage&q&f=false
+
+http://stackoverflow.com/questions/10136470/unsupervised-clustering-with-unknown-number-of-clusters
+
+https://en.wikipedia.org/wiki/DBSCAN
+https://en.wikipedia.org/wiki/Scikit-learn
+
+http://en.wikipedia.org/wiki/Multiple_sequence_alignment
