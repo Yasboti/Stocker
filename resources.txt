@@ -8,3 +8,7 @@ https://en.wikipedia.org/wiki/DBSCAN
 https://en.wikipedia.org/wiki/Scikit-learn
 
 http://en.wikipedia.org/wiki/Multiple_sequence_alignment
+
+
+http://blogs.stockcharts.com/chipanderson/2013/10/introducing-the-arms-candlevolume-charts.html
+http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:equivolume
