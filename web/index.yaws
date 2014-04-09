@@ -1,0 +1,22 @@
+<html>
+   <erl>
+      % chart api docs: https://code.google.com/p/yahoo-finance-managed/wiki/miscapiImageDownload
+      lineChart(Symbol, Time, Size, Type) -> lists:concat(["http://chart.finance.yahoo.com/z?t=", Time, "&z=", Size, "&q=", Type, "&p=v&s=", Symbol]).
+      fourCharts(Symbol) ->
+         [
+            {a, [{href, lists:concat(["http://finviz.com/quote.ashx?t=", Symbol])}, {target, "_blank"}], {img, [{src, lineChart(Symbol,  "1y", "s", "l")}]}},
+            {img, [{src, lineChart(Symbol,  "4m", "s", "l")}]},
+            {img, [{src, lineChart(Symbol, "15d", "s", "l")}]},
+            {img, [{src, lineChart(Symbol,  "1d", "s", "l")}]}
+            % {img, [{src, lists:concat(["http://www.nasdaq.com/charts/", Symbol, "_smallcnb.jpeg"])}]}
+         ].
+      out(Arg) ->
+         Stocks = [
+             "tsla", "bdsi", "vicl", "ttm", "fb", "twtr", "nflx", "amzn",
+             "tsi", "prph", "pris", "pme", "lptn", "kem", "fubc",
+             "frm", "baxs", "vnet", "fly", "asna", "zipr", "csiq",
+             "alxn", "alks", "ahc", "abr", "cidm", "inod", "kool"
+         ],
+         {ehtml, [ fourCharts(Symbol) || Symbol <- Stocks]}.
+   </erl>
+</html>
