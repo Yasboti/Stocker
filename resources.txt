@@ -12,3 +12,6 @@ http://en.wikipedia.org/wiki/Multiple_sequence_alignment
 
 http://blogs.stockcharts.com/chipanderson/2013/10/introducing-the-arms-candlevolume-charts.html
 http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:equivolume
+
+
+realtime intraday data (google): http://www.google.com/finance/getprices?i=60&p=15d&f=d,c,v&q=BDSI
