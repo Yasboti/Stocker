@@ -3,13 +3,14 @@ import datetime
 import math
 import requests
 
+from PIL import Image, ImageDraw
+
 
 # retrieve data from google
 def getCsv(symbol, seconds, days):
     url = 'http://www.google.com/finance/getprices'
     query = '?q=%s&i=%s&p=%sd&f=d,o,h,l,c,v' % (symbol.upper(), seconds, days)
     r = requests.get(url+query)
-    print len(r.text)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     # collect data
     result = []
@@ -18,7 +19,6 @@ def getCsv(symbol, seconds, days):
         if header < 7:
             header += 1
         else:
-            print line
             if line and 'a' == line[0][0]: # new day timestamp
                 dts = float(line[0][1:])
                 offset = 0
@@ -46,5 +46,31 @@ def prepareData(table):
     offset = pMin / (pMax - pMin)
     result = []
     for row in table:
-        result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.log(row[2]) / math.log(vMax)])
+        # result.append([row[0], (row[1] - pMin) / (pMax - pMin), row[2] / vMax])
+        # result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.log(row[2]) / math.log(vMax)])
+        # result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.sqrt(row[2]) / math.sqrt(vMax)])
+        result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.pow(row[2],0.72) / math.pow(vMax,0.72)])
     return result
+
+
+# render data to image
+def drawImage(data):
+    width = 1600
+    height = 900
+    im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
+    draw = ImageDraw.Draw(im)
+    idx = 0
+    px = 0
+    py = 0
+    count = len(data)
+    xOff = width / count
+    for row in data:
+        x = int(idx * xOff)
+        y = int(height * row[1])
+        c = int(255 * (1-row[2]))
+        draw.line((px, py, x, y), fill=(c,c,c))
+        px = x
+        py = y
+        idx += 1
+    im.save('test.png', 'PNG')
+    return im
