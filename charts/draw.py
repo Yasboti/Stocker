@@ -2,11 +2,13 @@ import csv
 import datetime
 import math
 import requests
+import sys
 
 from PIL import Image, ImageDraw
 
 
 # retrieve data from google
+# adjust timestamps so that each row has an absolute one
 def getCsv(symbol, seconds, days):
     url = 'http://www.google.com/finance/getprices'
     query = '?q=%s&i=%s&p=%sd&f=d,o,h,l,c,v' % (symbol.upper(), seconds, days)
@@ -24,7 +26,8 @@ def getCsv(symbol, seconds, days):
                 offset = 0
             else: # within the same day
                 offset = float(line[0])
-            ts = datetime.datetime.fromtimestamp(dts+(seconds*offset))
+            # ts = datetime.datetime.fromtimestamp(dts+(seconds*offset))
+            ts = dts + (seconds*offset)
             result.append([ts, float(line[1]), float(line[5])]) # only timestamp / close / volume
     return result
 
@@ -46,31 +49,53 @@ def prepareData(table):
     offset = pMin / (pMax - pMin)
     result = []
     for row in table:
+        # uhh need a better scaling function...
         # result.append([row[0], (row[1] - pMin) / (pMax - pMin), row[2] / vMax])
         # result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.log(row[2]) / math.log(vMax)])
         # result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.sqrt(row[2]) / math.sqrt(vMax)])
-        result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.pow(row[2],0.72) / math.pow(vMax,0.72)])
+        result.append([row[0], (row[1] - pMin) / (pMax - pMin), math.pow(row[2],0.75) / math.pow(vMax,0.75)])
     return result
 
 
 # render data to image
-def drawImage(data):
-    width = 1600
-    height = 900
-    im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
+# (drawn in sequence regardless of timestamp)
+def drawImage(fname, data):
+    bar = 2 # width of each data row as drawn
+    width = len(data) * bar
+    height = int(width/3)
+    im = Image.new('RGBA', (width, height), (0, 0, 0, 255)) 
     draw = ImageDraw.Draw(im)
+    lY = 0
+    while lY < height:
+        draw.line((0, lY, width, lY), fill=(0,10,5))    
+        lY += 35
     idx = 0
-    px = 0
-    py = 0
-    count = len(data)
-    xOff = width / count
     for row in data:
-        x = int(idx * xOff)
+        x = int(idx * bar)
         y = int(height * row[1])
-        c = int(255 * (1-row[2]))
-        draw.line((px, py, x, y), fill=(c,c,c))
-        px = x
-        py = y
+        c = int(255 * row[2])
+        drawBar(draw, x, y, c, bar)
         idx += 1
-    im.save('test.png', 'PNG')
+    im.save('output/%s.png' % fname, 'PNG')
     return im
+
+def drawBar(d, x, y, c, step):
+    # d.line((x, y-1, x+step-1, y-1), fill=(c,c,c))
+    d.line((x, y, x+step-1, y), fill=(c,c,c))
+    # d.line((x, y+1, x+step-1, y+1), fill=(c,c,c))
+
+def drawLine(d, px, py, x, y, c):
+    d.line((px, py, x, y), fill=(c,c,c))
+
+
+# cmdline
+if len(sys.argv) == 4:
+    symbol = sys.argv[1]
+    seconds = float(sys.argv[2])
+    days = float(sys.argv[3])
+    data = getCsv(symbol, seconds, days)
+    print 'data acquired'
+    cooked = prepareData(data)
+    fname = '%s-%ssec-%sdays' % (symbol, int(seconds), int(days))
+    drawImage(fname,cooked)
+    print 'image rendered'
