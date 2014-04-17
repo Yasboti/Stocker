@@ -82,31 +82,34 @@ def drawImage(fname, data):
     idx = 0
     for row in data:
         x = int(idx * bar)
+        c = int(height * row[1])
         h = int(height * row[2])
         l = int(height * row[3])
+        o = int(height * row[4])
         v = int(255 * (1-row[5]))
+        # v = int(255 * row[5])
         drawBar(draw, x, h, l, v, bar)
+        # drawDot(draw, x, c, v, bar)
         idx += 1
+    im = im.transpose(Image.FLIP_TOP_BOTTOM)
     im.save('output/%s.png' % fname, 'PNG')
     return im
 
 def drawBar(d,x,h,l,v,step):
-    off = step - 1
-    # d.line((x, h, x+off, h), fill=(v,v,v))
-    # d.line((x, l, x+off, l), fill=(v,v,v))
-    d.line((x, h, x, l), fill=(v,v,v))
-    # d.line((x+off, h, x+off, l), fill=(v,v,v))
+    d.line((x, h, x, l), fill=(v,v,180))
+    # d.line((x+1, h, x+1, l), fill=(v,v,210))
 
-def drawDot(d, x, y, c, step):
-    # d.line((x, y-1, x+step-1, y-1), fill=(c,c,c))
-    d.line((x, y, x+step-1, y), fill=(c,c,c))
-    # d.line((x, y+1, x+step-1, y+1), fill=(c,c,c))
+def drawDot(d, x, y, v, step):
+    # d.line((x, y-1, x+step-1, y-1), fill=(v,v,v))
+    d.line((x, y, x+step-1, y), fill=(v,v,v))
+    # d.line((x, y+1, x+step-1, y+1), fill=(v,v,50))
 
 def drawLine(d, px, py, x, y, c):
     d.line((px, py, x, y), fill=(c,c,c))
 
 
-# cmdline
+# cmdline, eg
+# python draw.py tsla 300 10
 if len(sys.argv) == 4:
     symbol = sys.argv[1]
     seconds = float(sys.argv[2])
