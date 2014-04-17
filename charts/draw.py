@@ -68,41 +68,51 @@ def prepareData(table):
 # render data to image
 # (drawn in sequence regardless of timestamp)
 def drawImage(fname, data):
-    bar = 2 # width of each data row as drawn
+    bar = 1 # width of each data row as drawn
     width = len(data) * bar
     height = int(width/3)
-    im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
-    # im = Image.new('RGBA', (width, height), (0, 0, 0, 255)) 
+    # im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
+    im = Image.new('RGBA', (width, height), (0, 0, 0, 255)) 
     draw = ImageDraw.Draw(im)
     lY = 0
     while lY < height:
-        draw.line((0, lY, width, lY), fill=(255,245,250))    
-        # draw.line((0, lY, width, lY), fill=(0,10,5))    
+        # draw.line((0, lY, width, lY), fill=(240,250,240))    
+        draw.line((0, lY, width, lY), fill=(15,5,15))
         lY += 35
     idx = 0
+    ht = height - 20
+    day = 0
+    pc = 0
     for row in data:
         x = int(idx * bar)
-        c = int(height * row[1])
-        h = int(height * row[2])
-        l = int(height * row[3])
-        o = int(height * row[4])
-        v = int(255 * (1-row[5]))
-        # v = int(255 * row[5])
-        drawBar(draw, x, h, l, v, bar)
-        # drawDot(draw, x, c, v, bar)
+        c = int(ht * row[1]) + 10
+        h = int(ht * row[2]) + 10
+        l = int(ht * row[3]) + 10
+        o = int(ht * row[4]) + 10
+        # v = int(230 * (1-row[5]))
+        v = int(245 * row[5]) + 10
+
+        if row[0] - day > 1000:
+            draw.line((x,0,x,height), fill=(25,15,25))
+        day = row[0]
+
+        # drawBar(draw, x, o, c, v, bar)
+        # drawBar(draw, x, h, l, v, bar)
+        drawDot(draw, x, c, v, bar)
+        # drawLine(draw, (idx-1)*bar, pc, x, c, v)
         idx += 1
+        pc = c
     im = im.transpose(Image.FLIP_TOP_BOTTOM)
     im.save('output/%s.png' % fname, 'PNG')
     return im
 
 def drawBar(d,x,h,l,v,step):
-    d.line((x, h, x, l), fill=(v,v,180))
-    # d.line((x+1, h, x+1, l), fill=(v,v,210))
+    d.line((x, h, x, l), fill=(v,v,v))
 
 def drawDot(d, x, y, v, step):
     # d.line((x, y-1, x+step-1, y-1), fill=(v,v,v))
     d.line((x, y, x+step-1, y), fill=(v,v,v))
-    # d.line((x, y+1, x+step-1, y+1), fill=(v,v,50))
+    # d.line((x, y+1, x+step-1, y+1), fill=(v,v,v))
 
 def drawLine(d, px, py, x, y, c):
     d.line((px, py, x, y), fill=(c,c,c))
@@ -112,6 +122,7 @@ def drawLine(d, px, py, x, y, c):
 # python draw.py tsla 300 10
 if len(sys.argv) == 4:
     symbol = sys.argv[1]
+    print symbol
     seconds = float(sys.argv[2])
     days = float(sys.argv[3])
     data = getCsv(symbol, seconds, days)
