@@ -68,16 +68,16 @@ def prepareData(table):
 # render data to image
 # (drawn in sequence regardless of timestamp)
 def drawImage(fname, data):
-    bar = 1 # width of each data row as drawn
+    bar = 3 # width of each data row as drawn
     width = len(data) * bar
     height = int(width/3)
-    # im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
-    im = Image.new('RGBA', (width, height), (0, 0, 0, 255)) 
+    im = Image.new('RGBA', (width, height), (255, 255, 255, 255)) 
+    # im = Image.new('RGBA', (width, height), (0, 0, 0, 255)) 
     draw = ImageDraw.Draw(im)
     lY = 0
     while lY < height:
-        # draw.line((0, lY, width, lY), fill=(240,250,240))    
-        draw.line((0, lY, width, lY), fill=(15,5,15))
+        draw.line((0, lY, width, lY), fill=(235,245,235))    
+        # draw.line((0, lY, width, lY), fill=(15,5,15))
         lY += 35
     idx = 0
     ht = height - 20
@@ -89,16 +89,17 @@ def drawImage(fname, data):
         h = int(ht * row[2]) + 10
         l = int(ht * row[3]) + 10
         o = int(ht * row[4]) + 10
-        # v = int(230 * (1-row[5]))
-        v = int(245 * row[5]) + 10
+        v = int(240 * (1-row[5]))
+        # v = int(235 * row[5]) + 20
 
-        if row[0] - day > 1000:
-            draw.line((x,0,x,height), fill=(25,15,25))
+        if row[0] - day > 10000:
+            draw.line((x,0,x,height), fill=(210,210,210))
+            # draw.line((x,0,x,height), fill=(25,15,25))
         day = row[0]
 
         # drawBar(draw, x, o, c, v, bar)
-        # drawBar(draw, x, h, l, v, bar)
-        drawDot(draw, x, c, v, bar)
+        drawOHLC(draw, x, o, h, l, c, v, bar)
+        # drawDot(draw, x, c, v, bar)
         # drawLine(draw, (idx-1)*bar, pc, x, c, v)
         idx += 1
         pc = c
@@ -106,11 +107,17 @@ def drawImage(fname, data):
     im.save('output/%s.png' % fname, 'PNG')
     return im
 
+def drawOHLC(d,x,o,h,l,c,v,step):
+    d.line((x-1, o, x-1, o), fill=(v,v,v))
+    d.line((x+1, c, x+1, c), fill=(v,v,v))
+    d.line((x, h, x, l), fill=(v,v,v))
+
 def drawBar(d,x,h,l,v,step):
+    d.line((x+1, c, x+1, c), fill=(v,v,v))
     d.line((x, h, x, l), fill=(v,v,v))
 
 def drawDot(d, x, y, v, step):
-    # d.line((x, y-1, x+step-1, y-1), fill=(v,v,v))
+    d.line((x, y-1, x+step-1, y-1), fill=(v,v,v))
     d.line((x, y, x+step-1, y), fill=(v,v,v))
     # d.line((x, y+1, x+step-1, y+1), fill=(v,v,v))
 
@@ -129,6 +136,6 @@ if len(sys.argv) == 4:
     print 'data acquired'
     cooked = prepareData(data)
     print 'data adjusted'
-    fname = '%s-%ssec-%sdays' % (symbol, int(seconds), int(days))
+    fname = '%s-%ss-%sd' % (symbol, int(seconds), int(days))
     drawImage(fname,cooked)
     print 'image rendered'
