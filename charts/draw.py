@@ -7,9 +7,31 @@ import sys
 from PIL import Image, ImageDraw
 
 
+# get end of day historical data from yahoo
+def getDailyCsv(symbol):
+    url = 'http://ichart.finance.yahoo.com/table.csv'
+    query = '?s=%s&a=00&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
+    r = requests.get(url+query)
+    result = []
+    reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
+    header = True
+    for line in reader:
+        if header:
+            header = False
+        else:
+            result.append([
+                line[0],
+                float(line[4]), # open and close are switched to match google
+                float(line[2]),
+                float(line[3]),
+                float(line[1]),
+                float(line[5])
+            ])
+    return result
+
 # retrieve data from google
 # adjust timestamps so that each row has an absolute one
-def getCsv(symbol, seconds, days):
+def getIntradayCsv(symbol, seconds, days):
     url = 'http://www.google.com/finance/getprices'
     query = '?q=%s&i=%s&p=%sd&f=d,c,h,l,o,v' % (symbol.upper(), seconds, days)
     r = requests.get(url+query)
@@ -29,7 +51,7 @@ def getCsv(symbol, seconds, days):
             # ts = datetime.datetime.fromtimestamp(dts+(seconds*offset))
             ts = dts + (seconds*offset)
             # [ts, c, h, l, o, v]
-            result.append([ts, float(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])]) # only timestamp / close / volume
+            result.append([ts, float(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])])
     return result
 
 
@@ -62,7 +84,8 @@ def prepareData(table):
             math.pow(row[5],0.75) / math.pow(vMax,0.75) # adjusted volume
             # math.pow(row[5],2) / math.pow(vMax,2) # adjusted volume
         ])
-    return result
+    return result[::-1]
+    # return result
 
 
 # render data to image
@@ -92,8 +115,8 @@ def drawImage(fname, data):
         v = int(240 * (1-row[5]))
         # v = int(235 * row[5]) + 20
 
-        if row[0] - day > 10000:
-            draw.line((x,0,x,height), fill=(210,210,210))
+        # if row[0] - day > 10000:
+        #     draw.line((x,0,x,height), fill=(210,210,210))
             # draw.line((x,0,x,height), fill=(25,15,25))
         day = row[0]
 
@@ -132,10 +155,12 @@ if len(sys.argv) == 4:
     print symbol
     seconds = float(sys.argv[2])
     days = float(sys.argv[3])
-    data = getCsv(symbol, seconds, days)
+    data = getDailyCsv(symbol)
+    # data = getIntradayCsv(symbol, seconds, days)
     print 'data acquired'
     cooked = prepareData(data)
     print 'data adjusted'
-    fname = '%s-%ss-%sd' % (symbol, int(seconds), int(days))
+    fname = '%s-daily' % (symbol)
+    # fname = '%s-%ss-%sd' % (symbol, int(seconds), int(days))
     drawImage(fname,cooked)
     print 'image rendered'
