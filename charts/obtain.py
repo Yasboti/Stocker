@@ -3,12 +3,19 @@ import math
 import requests
 import sys
 
+# save to local csv
+def saveLocal(symbol, suffix, data):
+    fh = open("input/%s-%s.csv" % (symbol, suffix), 'w')
+    fh.write(data)
+    fh.close()
+
 # get end of day historical data from yahoo
 def getDailyCsv(symbol):
     url = 'http://ichart.finance.yahoo.com/table.csv'
     # query = '?s=%s&a=01&b=1&c=2003&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
     query = '?s=%s&a=03&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
     r = requests.get(url+query)
+    saveLocal(symbol, 'eod', r.text)
     result = []
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     header = True
@@ -32,6 +39,7 @@ def getIntradayCsv(symbol, seconds, days):
     url = 'http://www.google.com/finance/getprices'
     query = '?q=%s&i=%s&p=%sd&f=d,c,h,l,o,v' % (symbol.upper(), seconds, days)
     r = requests.get(url+query)
+    saveLocal(symbol, 'intraday', r.text)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     # collect data
     result = []
