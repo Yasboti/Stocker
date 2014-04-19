@@ -6,8 +6,8 @@ import sys
 # get end of day historical data from yahoo
 def getDailyCsv(symbol):
     url = 'http://ichart.finance.yahoo.com/table.csv'
-    query = '?s=%s&a=01&b=1&c=2003&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
-    # query = '?s=%s&a=09&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
+    # query = '?s=%s&a=01&b=1&c=2003&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
+    query = '?s=%s&a=09&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
     r = requests.get(url+query)
     result = []
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
