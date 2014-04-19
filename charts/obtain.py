@@ -7,7 +7,7 @@ import sys
 def getDailyCsv(symbol):
     url = 'http://ichart.finance.yahoo.com/table.csv'
     # query = '?s=%s&a=01&b=1&c=2003&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
-    query = '?s=%s&a=09&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
+    query = '?s=%s&a=03&b=1&c=2013&d=03&e=18&f=2014&g=d&ignore=.csv' % symbol
     r = requests.get(url+query)
     result = []
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
@@ -24,7 +24,7 @@ def getDailyCsv(symbol):
                 float(line[1]),
                 float(line[5])
             ])
-    return result
+    return result[::-1]
 
 # retrieve data from google
 # adjust timestamps so that each row has an absolute one
@@ -49,7 +49,7 @@ def getIntradayCsv(symbol, seconds, days):
             ts = dts + (seconds*offset)
             # [ts, c, h, l, o, v]
             result.append([ts, float(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])])
-    return result[::-1]
+    return result
 
 
 # adjust values for display
@@ -78,7 +78,7 @@ def prepareData(table):
             (row[3] - pMin) / (pMax - pMin),            # low
             (row[4] - pMin) / (pMax - pMin),            # open
             # row[5] / vMax # raw volume
-            math.pow(row[5],0.75) / math.pow(vMax,0.75) # adjusted volume
+            math.pow(row[5], 0.5) / math.pow(vMax, 0.5) # adjusted volume
             # math.pow(row[5],2) / math.pow(vMax,2) # adjusted volume
         ])
     return result
