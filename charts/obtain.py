@@ -49,7 +49,7 @@ def getIntradayCsv(symbol, seconds, days):
             ts = dts + (seconds*offset)
             # [ts, c, h, l, o, v]
             result.append([ts, float(line[1]), float(line[2]), float(line[3]), float(line[4]), float(line[5])])
-    return result
+    return result[::-1]
 
 
 # adjust values for display
@@ -81,6 +81,5 @@ def prepareData(table):
             math.pow(row[5],0.75) / math.pow(vMax,0.75) # adjusted volume
             # math.pow(row[5],2) / math.pow(vMax,2) # adjusted volume
         ])
-    return result[::-1]
-    # return result
+    return result
 
