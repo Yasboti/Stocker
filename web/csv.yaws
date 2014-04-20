@@ -1,0 +1,9 @@
+<html>
+   <erl>
+      % return csv data for requested symbol
+      out(Arg) ->
+        {ok, Symbol} = queryvar(Arg, "symbol"),
+        Output = csv:csvData(Symbol),
+        {ehtml, [ Output ]}.
+   </erl>
+</html>
