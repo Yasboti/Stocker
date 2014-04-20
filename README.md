@@ -1,4 +1,4 @@
 stocker
 =======
 
-fractal analysis of discrete curves
+Visualizing the movements of the stock market.
