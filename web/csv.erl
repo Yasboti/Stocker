@@ -8,5 +8,5 @@
 % return number of rows for given symbol
 csvData(Symbol) ->
    {ok, C} = eredis:start_link(),
-   {ok, Count} = eredis:q(C, ["ZCARD", Symbol]),
-   Count.
+   {ok, Data} = eredis:q(C, ["ZRANGE", Symbol, 0, -1]),
+   [lists:concat([binary_to_list(Row),"\n"]) || Row <- Data].
