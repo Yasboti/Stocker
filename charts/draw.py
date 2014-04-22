@@ -108,7 +108,7 @@ if len(sys.argv) == 4:
     print symbol
     seconds = float(sys.argv[2])
     days = float(sys.argv[3])
-    data = obtain.getDailyCsv(symbol)
+    data = obtain.getCsv(symbol)
     # data = obtain.getIntradayCsv(symbol, seconds, days)
     print 'data acquired'
     cooked = obtain.prepareData(data)
