@@ -1,12 +1,4 @@
-import datetime
-import sys
-
 from PIL import Image, ImageDraw
-
-import obtain
-
-
-
 
 # render data to image
 # (drawn in sequence regardless of timestamp)
@@ -99,22 +91,3 @@ def drawDot(d, x, y, v, step):
 
 def drawLine(d, px, py, x, y, c):
     d.line((px, py, x, y), fill=(c,c,c))
-
-
-# cmdline, eg
-# python draw.py tsla 300 10
-if len(sys.argv) == 4:
-    symbol = sys.argv[1]
-    print symbol
-    seconds = float(sys.argv[2])
-    days = float(sys.argv[3])
-    data = obtain.getDailyCsv(symbol)
-    # data = obtain.getIntradayCsv(symbol, seconds, days)
-    print 'data acquired'
-    cooked = obtain.prepareData(data)
-    print 'data adjusted'
-    fname = '%s-daily-bar' % (symbol)
-    # fname = '%s-%ss-%sd' % (symbol, int(seconds), int(days))
-    drawBarImage(fname,cooked)
-    # drawDotImage(fname,cooked)
-    print 'image rendered'
