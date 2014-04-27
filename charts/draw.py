@@ -22,7 +22,7 @@ def drawBarImage(fname, data):
         h = int(ht * row[2]) + 10
         l = int(ht * row[3]) + 10
         o = int(ht * row[4]) + 10
-        v = int(240 * (1-row[5]))
+        v = int(255 - row[5])
 
         # if row[0] - day > 10000:
         #     draw.line((x,0,x,height), fill=(210,210,210))

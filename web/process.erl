@@ -66,6 +66,20 @@ map_tuples(Tuples, Moments) ->
       map_colour(Tuple, Moments)
    end, to_numbers(Tuples)).
 
+% scale prices to [0..1] range
+normalize_prices(Tuples) ->
+   Highs = lists:map(fun(C) -> element(3,C) end, Tuples),
+   Lows = lists:map(fun(C) -> element(4,C) end, Tuples),
+   Max = lists:max(Highs),
+   Min = lists:min(Lows),
+   lists:map(fun(T) -> {
+      element(1,T),
+      (element(2,T) - Min) / (Max - Min),
+      (element(3,T) - Min) / (Max - Min),
+      (element(4,T) - Min) / (Max - Min),
+      (element(5,T) - Min) / (Max - Min),
+      element(6,T)
+   } end, Tuples).
 
 % output list of samples w/colour data added
 output_data(Symbol, Start, End) ->
@@ -73,4 +87,5 @@ output_data(Symbol, Start, End) ->
    EndEpoch = calendar:datetime_to_gregorian_seconds({End, {0,0,0}}) - 62167219200,
    Data = retrieve_data(Symbol, StartEpoch, EndEpoch),
    Moments = quantify(Data),
-   map_tuples(Data, Moments).
+   normalize_prices(map_tuples(Data, Moments)).
+

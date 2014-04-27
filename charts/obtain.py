@@ -11,7 +11,7 @@ def saveLocal(symbol, suffix, data):
 
 def getCsv(symbol, start, end):
     symbol = symbol.upper()
-    url = "http://localhost:8080/csv.yaws?symbol=%s&start=%s&end=%s" % (symbol, start, end)
+    url = "http://localhost:8080/data.yaws?symbol=%s&start=%s&end=%s" % (symbol, start, end)
     r = requests.get(url)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     result = []
