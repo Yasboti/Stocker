@@ -10,11 +10,12 @@
 -compile(export_all).
 
 -import(eredis, [start_link/0, q/1]).
+-import(csv, [dateToEpoch/1]).
 
-% retrieve all samples for symbol
-retrieve_data(Symbol) ->
+% retrieve range of samples for symbol
+retrieve_data(Symbol, Start, End) ->
    {ok, C} = eredis:start_link(),
-   {ok, Data} = eredis:q(C, ["ZRANGE", Symbol, 0, -1]),
+   {ok, Data} = eredis:q(C, ["ZRANGEBYSCORE", Symbol, Start, End]),
    % parse a list of binary blobs into a list of tuples
    [list_to_tuple(string:tokens(binary_to_list(Row), ", ")) || Row <- Data].
 
@@ -45,15 +46,19 @@ quantify(Tuples) ->
 
 % map colour gradient onto volume data
 map_colour(Tuple, Moments) -> 
-   % V = element(1,string:to_integer(element(6, Tuple))),
+   % this is awkward
    V = element(6, Tuple),
    Min = element(1, Moments),
    Med = element(2, Moments),
    Max = element(3, Moments),
+   % if volume below median, use lower range
    if V < Med ->
-      setelement(6, Tuple, trunc(128 * (V - Min) / (Med - Min)));
+      setelement(6, Tuple, 
+         trunc(128 * (V - Min) / (Med - Min)));
+   % otherwise use upper range
    true ->
-      setelement(6, Tuple, trunc(128 * (V - Med) / (Max - Med) + 128))
+      setelement(6, Tuple, 
+         trunc(128 * (V - Med) / (Max - Med) + 128))
    end.
 
 map_tuples(Tuples, Moments) ->
@@ -63,7 +68,9 @@ map_tuples(Tuples, Moments) ->
 
 
 % output list of samples w/colour data added
-output_data(Symbol) ->
-   Data = retrieve_data(Symbol),
+output_data(Symbol, Start, End) ->
+   StartEpoch = calendar:datetime_to_gregorian_seconds({Start, {0,0,0}}) - 62167219200,
+   EndEpoch = calendar:datetime_to_gregorian_seconds({End, {0,0,0}}) - 62167219200,
+   Data = retrieve_data(Symbol, StartEpoch, EndEpoch),
    Moments = quantify(Data),
    map_tuples(Data, Moments).
