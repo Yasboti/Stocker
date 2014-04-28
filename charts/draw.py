@@ -1,6 +1,3 @@
-import datetime
-import sys
-
 from PIL import Image, ImageDraw
 
 import obtain
@@ -30,12 +27,11 @@ def drawBarImage(fname, data):
     pc = 0
     for row in data:
         x = int(idx * bar)
-        v = int(240 * (1-row[5]))
-
         c = scale(row[1], height)
         h = scale(row[2], height)
         l = scale(row[3], height)
         o = scale(row[4], height)
+        v = int(255 - row[5])
 
         # if row[0] - day > 10000:
         #     draw.line((x,0,x,height), fill=(210,210,210))
@@ -106,22 +102,3 @@ def drawDot(d, x, y, v, step):
 
 def drawLine(d, px, py, x, y, c):
     d.line((px, py, x, y), fill=(c,c,c))
-
-
-# cmdline, eg
-# python draw.py tsla 300 10
-if len(sys.argv) == 4:
-    symbol = sys.argv[1]
-    print symbol
-    seconds = float(sys.argv[2])
-    days = float(sys.argv[3])
-    data = obtain.getDailyCsv(symbol)
-    # data = obtain.getIntradayCsv(symbol, seconds, days)
-    print 'data acquired'
-    cooked = obtain.prepareData(data)
-    print 'data adjusted'
-    fname = '%s-daily-bar' % (symbol)
-    # fname = '%s-%ss-%sd' % (symbol, int(seconds), int(days))
-    drawBarImage(fname,cooked)
-    # drawDotImage(fname,cooked)
-    print 'image rendered'
