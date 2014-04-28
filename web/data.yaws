@@ -6,7 +6,7 @@
     {ok, End} = queryvar(Arg, "end"),
     {ok, [Sy, Sm, Sd], []} = io_lib:fread("~4d~2d~2d", Start),
     {ok, [Ey, Em, Ed], []} = io_lib:fread("~4d~2d~2d", End),
-    {content, "text/plain", csv:csvData(Symbol,
+    {content, "text/plain", csv:colourData(Symbol,
       {Sy,Sm,Sd},
       {Ey,Em,Ed}
     )}.

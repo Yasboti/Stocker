@@ -6,7 +6,7 @@
 array=( IBB BDSI VICL TSLA MYL ZGNX PLUG ORMP ARWR FSLR ERBB GSS HEB MSTX PAL CPST CVM DVAX FST GALE GERN GNK RSH ACI ALU AMD MNGA WPWR TGRO CBRX ROSG)
 for i in "${array[@]}"
 do
-    python draw.py $i 180 3
+    python eod.py $i 20130401 20140420
 done
 
 

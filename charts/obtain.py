@@ -9,10 +9,9 @@ def saveLocal(symbol, suffix, data):
     fh.write(data)
     fh.close()
 
-
-def getCsv(symbol):
+def getCsv(symbol, start, end):
     symbol = symbol.upper()
-    url = "http://localhost:8080/csv.yaws?symbol=%s" % symbol
+    url = "http://localhost:8080/data.yaws?symbol=%s&start=%s&end=%s" % (symbol, start, end)
     r = requests.get(url)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     result = []
@@ -28,7 +27,6 @@ def getCsv(symbol):
             float(line[5])
         ])
     return result
-
 
 # get end of day historical data from yahoo
 def getDailyCsv(symbol):
@@ -58,7 +56,7 @@ def getDailyCsv(symbol):
 # adjust timestamps so that each row has an absolute one
 def getIntradayCsv(symbol, seconds, days):
     url = 'http://www.google.com/finance/getprices'
-    query = '?q=%s&i=%s&p=%sd&f=d,c,h,l,o,v' % (symbol.upper(), seconds, days)
+    query = '?q=%s&i=%s&p=%sd&f=d,c,h,l,o,v' % (symbol.upper(), int(seconds), int(days))
     r = requests.get(url+query)
     saveLocal(symbol, 'intraday', r.text)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
