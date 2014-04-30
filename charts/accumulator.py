@@ -46,6 +46,18 @@ def storeAllSymbols(rc):
    print len(symbols), 'symbols found'
    rc.sadd('symbols', *symbols)
 
+# create a list from symbols.txt
+def storeSymbols():
+   rc = redis.StrictRedis(host='localhost', port=6379, db=0)
+   symbols = []
+   with open('symbols.txt') as f:
+      symbols = f.read().splitlines()
+      print len(symbols), 'symbols found'
+   for s in reversed(symbols):
+      rc.lpush('symbols', s)
+   print 'done'
+
+
 def importAll(rc):
    symbols = rc.smembers('symbols')
    print len(symbols), 'known symbols'
@@ -57,11 +69,10 @@ def importAll(rc):
 
 
 # store last 15 days of intraday data for symbol
-def updateIntraday(symbol):
-   rc = redis.StrictRedis(host='localhost', port=6379, db=0)
-   print symbol
+def updateIntraday(rc, symbol):
    data = obtain.getIntradayCsv(symbol, 15)
-   print len(data), 'rows obtained'
+   print '%s: %s rows obtained' % (symbol, len(data))
+   if 0 == len(data): return 0
    ts, o, h, l, c, v = zip(*data)
    columns = {
       'open': o,
@@ -72,10 +83,26 @@ def updateIntraday(symbol):
    }
    # store each column as a separate ordered (by ts) set
    for c in columns.keys():
+      p = rc.pipeline()
       key = '%s.intraday.%s' % (symbol, c)
-      print 'storing', key
-      print len(ts), len(columns[c])
       for i, timestamp in enumerate(ts):
          val = columns[c][i]
          val = int(val) if 'volume' == c else float(val)
-         rc.zadd(key, int(timestamp), val)
+         p.zadd(key, int(timestamp), val)
+      p.execute()
+   return len(data)
+
+def getAllIntraday():
+   rc = redis.StrictRedis(host='localhost', port=6379, db=0)
+   name = rc.get('updateList')
+   if 'symbols' == name:
+      name = 'symbols.update'
+      rc.sort('symbols', store = name)
+      rc.set('updateList', name)
+   while rc.llen(name) > 0:
+      # no data? most likely bad symbol, remove it
+      symbol = rc.lpop(name)
+      if 0 == updateIntraday(rc, symbol):
+         print 'removing', symbol, ' - no data was returned'
+         rc.lrem('symbols', 1, symbol)
+
