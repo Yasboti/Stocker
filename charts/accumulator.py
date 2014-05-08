@@ -57,7 +57,6 @@ def storeSymbols():
       rc.lpush('symbols', s)
    print 'done'
 
-
 def importAll(rc):
    symbols = rc.smembers('symbols')
    print len(symbols), 'known symbols'
@@ -88,7 +87,7 @@ def updateIntraday(rc, symbol):
       for i, timestamp in enumerate(ts):
          val = columns[c][i]
          val = int(val) if 'volume' == c else float(val)
-         p.zadd(key, int(timestamp), val)
+         p.zadd(key, val, int(timestamp))
       p.execute()
    return len(data)
 
@@ -97,7 +96,7 @@ def getAllIntraday():
    name = rc.get('updateList')
    if 'symbols' == name:
       name = 'symbols.update'
-      rc.sort('symbols', store = name)
+      rc.sort('symbols', store = name, alpha = True)
       rc.set('updateList', name)
    while rc.llen(name) > 0:
       # no data? most likely bad symbol, remove it
@@ -105,4 +104,5 @@ def getAllIntraday():
       if 0 == updateIntraday(rc, symbol):
          print 'removing', symbol, ' - no data was returned'
          rc.lrem('symbols', 1, symbol)
+   rc.set('updateList', 'symbols')
 
