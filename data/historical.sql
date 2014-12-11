@@ -1,1 +1,10 @@
-create table eod (symbol text not null, ts integer not null, open real not null, close real not null, high real not null, low real, volume integer not null);
+CREATE TABLE eod (
+   symbol TEXT NOT NULL,
+   ts INTEGER NOT NULL,
+   open REAL NOT NULL,
+   close REAL NOT NULL,
+   high REAL NOT NULL,
+   low REAL,
+   volume INTEGER NOT NULL,
+   UNIQUE (symbol, ts)
+);
