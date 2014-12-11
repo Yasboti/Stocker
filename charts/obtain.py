@@ -59,23 +59,27 @@ def getIntradayCsv(symbol, days):
     url = 'http://www.google.com/finance/getprices'
     query = '?q=%s&i=%s&p=%sd&f=d,c,h,l,o,v' % (symbol.upper(), int(seconds), int(days))
     r = requests.get(url+query)
-    saveLocal(symbol, 'intraday', r.text)
+    # saveLocal(symbol, 'intraday', r.text)
     reader = csv.reader(r.text.splitlines(),dialect=csv.excel)
     # collect data
     result = []
     header = 0
-    for line in reader:
-        if header < 7:
-            header += 1
-        else:
-            if line and 'a' == line[0][0]: # new day timestamp
-                dts = float(line[0][1:])
-                offset = 0
-            else: # within the same day
-                offset = float(line[0])
-            ts = dts + (seconds*offset)
-            # [ts, c, h, l, o, v]
-            result.append([ts, float(line[4]), float(line[2]), float(line[3]), float(line[1]), float(line[5])])
+    try:
+        for line in reader:
+            if header < 7:
+                header += 1
+            else:
+                if line and 'a' == line[0][0]: # new day timestamp
+                    dts = float(line[0][1:])
+                    offset = 0
+                else: # within the same day
+                    offset = float(line[0])
+                ts = dts + (seconds*offset)
+                # [ts, c, h, l, o, v]
+                result.append([ts, float(line[4]), float(line[2]), float(line[3]), float(line[1]), float(line[5])])
+    except Exception, e:
+        print "Exception caught:", str(e)
+        print r.text
     return result
 
 

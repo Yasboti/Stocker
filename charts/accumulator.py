@@ -68,9 +68,10 @@ def importAll(rc):
       print '%s rows added' % rc.zcard(s)
 
 
-# store last 15 days of intraday data for symbol
-def updateIntraday(rc, symbol):
-   data = obtain.getIntradayCsv(symbol, 15)
+# store last N days of intraday data for symbol
+# (does not overwrite existing data eg zero volumes)
+def updateIntraday(rc, symbol, days):
+   data = obtain.getIntradayCsv(symbol, days)
    print '%s: %s rows obtained' % (symbol, len(data))
    if 0 == len(data): return 0
    ts, o, h, l, c, v = zip(*data)
@@ -92,7 +93,8 @@ def updateIntraday(rc, symbol):
       p.execute()
    return len(data)
 
-def getAllIntraday():
+# update intraday data for all known symbols
+def getAllIntraday(days):
    rc = redis.StrictRedis(host='localhost', port=6379, db=0)
    name = rc.get('updateList')
    if 'symbols' == name:
@@ -102,7 +104,12 @@ def getAllIntraday():
    while rc.llen(name) > 0:
       # no data? most likely bad symbol, remove it
       symbol = rc.lpop(name)
-      if 0 == updateIntraday(rc, symbol):
-         print 'removing', symbol, ' - no data was returned'
-         rc.lrem('symbols', 1, symbol)
+      updateIntraday(rc, symbol, days)
+      time.sleep(2) # delay to prevent captcha ban
+      # NOTE this is not a reliable way of doing that
+      # remove symbol if no data in at least two trading days
+      # if days > 1 and 0 == updateIntraday(rc, symbol, days):
+      #    print 'removing', symbol, ' - no data was returned'
+      #    rc.lrem('symbols', 1, symbol)
+   rc.set('updateList', 'symbols')
 
