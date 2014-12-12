@@ -6,5 +6,5 @@ CREATE TABLE eod (
    high REAL NOT NULL,
    low REAL,
    volume INTEGER NOT NULL,
-   UNIQUE (symbol, ts)
+   UNIQUE (symbol, ts) ON CONFLICT REPLACE
 );

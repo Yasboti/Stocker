@@ -19,5 +19,5 @@ for fname in dataFiles:
       reader = csv.reader(f)
       symbol = fname[:-4][4:]
       data =  [[symbol] + row for row in list(reader)]
-      r = c.executemany('INSERT OR IGNORE INTO eod VALUES (?, ?, ?, ?, ?, ?, ?)', data)
+      r = c.executemany('INSERT OR REPLACE INTO eod VALUES (?, ?, ?, ?, ?, ?, ?)', data)
       connection.commit()
