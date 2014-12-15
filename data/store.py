@@ -16,6 +16,7 @@ c = connection.cursor()
 
 for fname in dataFiles:
    with open(fname, 'r') as f:
+      print fname
       reader = csv.reader(f)
       symbol = fname[:-4][4:]
       data =  [[symbol] + row for row in list(reader)]
