@@ -13,12 +13,11 @@ for root, dirs, files in os.walk('csv'):
 
 connection = sqlite3.connect('historical.sl')
 c = connection.cursor()
-
 for fname in dataFiles:
    with open(fname, 'r') as f:
       print fname
       reader = csv.reader(f)
       symbol = fname[:-4][4:]
-      data =  [[symbol] + row for row in list(reader)]
-      r = c.executemany('INSERT OR REPLACE INTO eod VALUES (?, ?, ?, ?, ?, ?, ?)', data)
+      data = [[symbol, int(float(row[0])), float(row[1]), float(row[2]), float(row[3]), float(row[4]), int(float(row[5]))] for row in list(reader)]
+      r = c.executemany('INSERT OR IGNORE INTO eod VALUES (?, ?, ?, ?, ?, ?, ?)', data)
       connection.commit()
