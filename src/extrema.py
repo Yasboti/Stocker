@@ -40,9 +40,11 @@ def accumulateFrame(symbols, order, mindate, maxdate):
     return df
 
 def figure(stub, df, size):
-   plot = df.plot(kind='line', figsize=size)
-   fig = plot.get_figure()
-   fig.savefig("../media/" + stub + ".png")
+    plot = df.plot(kind='line', figsize=size, legend=False)
+    plot.set_autoscaley_on(False)
+    plot.set_ylim([-1000,1000])
+    fig = plot.get_figure()
+    fig.savefig("../media/" + stub + ".png")
 
 
 
@@ -50,22 +52,22 @@ def figure(stub, df, size):
 # retrieve symbol list
 symbols = []
 markets = ['amex','nasdaq','nyse','otcbb']
-single = 'amex'
+single = 'otcbb'
 markets = [single]
 for m in markets:
     fname = '../data/symbols-' + m + '-unique.txt'
     with open(fname, 'r') as f:
         symbols += f.read().splitlines()   
 
-mindate = datetime.date(2014,1,1)
+mindate = datetime.date(2014,6,11)
 maxdate = datetime.date(2014,12,12)
 order = 32
 
 print len(symbols), 'data streams'
 
-for days in range(9,-1,-1):
+for days in range(0, 501):
     mind = mindate - timedelta(days)
     maxd = maxdate - timedelta(days)
     df = accumulateFrame(symbols, order, mind.toordinal(), maxd.toordinal())
     print 'producing plot for', mind, maxd
-    figure("stacked-{0}-{1}-{2}-{3}d".format(single,mind,maxd,order), df, (10,6))
+    figure("stacked-{0}-{1}-{2}-{3}d".format(single,mind,maxd,order), df, (12,6))
