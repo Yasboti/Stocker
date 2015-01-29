@@ -1,0 +1,20 @@
+<html>
+   <erl>
+      % chart api docs: https://code.google.com/p/yahoo-finance-managed/wiki/miscapiImageDownload
+      lineChart(Symbol, Time, Size, Type) -> lists:concat(["http://chart.finance.yahoo.com/z?l=on&t=", Time, "&z=", Size, "&q=", Type, "&a=v&s=", Symbol]).
+      fourCharts(Symbol) ->
+        Nasdaq = "http://www.nasdaq.com/symbol/",
+        [{'div', [{style, "border-bottom: 3px solid #eeffdd; padding-bottom:15px; padding-top:5px;"}], [
+          {a, [{href, lists:concat(["http://finviz.com/quote.ashx?t=", Symbol])}, {target, "_blank"}], {img, [{src, lineChart(Symbol,  "1y", "m", "l")}]}},
+          {a, [{href, lists:concat([Nasdaq, Symbol, "/real-time"])}, {target, "_blank"}], {img, [{src, lineChart(Symbol,  "15d", "m", "l")}]}}
+          ]}
+       ].
+      out(Arg) ->
+        % io:write(queryvar(Arg, "symbol")),
+        % io:write(yaws_api:parse_query(Arg)),
+        % {Token,Value} = yaws_api:parse_query(Arg),
+        {ok, Symbol} = queryvar(Arg, "symbol"),
+        Stocks = string:tokens(Symbol, ","),
+        {ehtml, [ fourCharts(S) || S <- Stocks]}.
+   </erl>
+</html>
