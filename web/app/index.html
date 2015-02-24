@@ -1,0 +1,17 @@
+<html ng-app="app">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.13/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.13/angular-touch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-carousel/0.3.10/angular-carousel.min.js"></script>
+    <script src="applicationscript.js"></script>
+  </head>
+  <body ng-controller="Charts as charts">
+
+    <input ng-model="symbolString" type="text" autocorrect="off" autocapitalize="off" />
+    <div ng-repeat="url in symbolString.split(' ')"><img src="{{stub}}{{url}}"/></div>
+
+  </body>
+  <script type="text/javascript">
+    // console.log(app._invokeQueue);
+  </script>
+</html>
